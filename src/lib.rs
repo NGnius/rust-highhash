@@ -1,7 +1,6 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+//! High speed hashing algorithms.
+#![warn(missing_docs)]
+
+pub mod murmur;
+
+pub use murmur::Murmur3Hasher32 as Murmur3Hasher;

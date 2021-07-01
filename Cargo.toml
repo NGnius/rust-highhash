@@ -2,6 +2,13 @@
 name = "highhash"
 version = "0.1.0"
 edition = "2018"
+authors = ["Graham L (NGnius) <ngniusness@gmail.com>"]
+description = "High-speed hashing algorithms for Rust."
+homepage = "https://github.com/NGnius/rust-highhash"
+repository = "https://github.com/NGnius/rust-highhash.git"
+documentation = "https://docs.rs/highhash/latest/highhash/"
+keywords = ["hash", "hashing"]
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
