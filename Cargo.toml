@@ -1,6 +1,6 @@
 [package]
 name = "highhash"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 authors = ["Graham L (NGnius) <ngniusness@gmail.com>"]
 description = "High-speed hashing algorithms for Rust."
