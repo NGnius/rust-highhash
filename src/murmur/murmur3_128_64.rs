@@ -76,9 +76,7 @@ pub fn hash128_x64_with_seed<T: AsRef<[u8]>>(v: T, seed: u32) -> u128 {
     let tail_num = n_blocks * 16;
     let mut k1 = 0;
     let mut k2 = 0;
-    println!("Tail size: {}", data.len() - tail_num);
     for i in (1..=data.len() & 15).rev() {
-        println!("Doing tail {}/{} ({}/{})", i, data.len()&15, tail_num+i-1, data.len()-1);
         match i {
             15 => k2 ^= (data[tail_num+14] as u64) << 48,
             14 => k2 ^= (data[tail_num+13] as u64) << 40,

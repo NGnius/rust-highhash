@@ -101,9 +101,7 @@ pub fn hash128_with_seed<T: AsRef<[u8]>>(v: T, seed: u32) -> u128 {
     let mut k2 = 0;
     let mut k3 = 0;
     let mut k4 = 0;
-    println!("Tail size: {}", data.len() - tail_num);
     for i in (1..=data.len() & 15).rev() {
-        println!("Doing tail {}/{} ({}/{})", i, data.len()&15, tail_num+i-1, data.len()-1);
         match i {
             15 => k4 ^= (data[tail_num+14] as u32) << 16,
             14 => k4 ^= (data[tail_num+13] as u32) << 8,

@@ -58,7 +58,6 @@ pub fn hash32_with_seed<T: AsRef<[u8]>>(v: T, seed: u32) -> u32 {
     let tail_num = n_blocks * 4;
     let mut k1 = 0;
     for i in (1..=data.len() & 3).rev() {
-        println!("Doing tail {}/{}", i, data.len()&3);
         match i {
             3 => k1 ^= (tail[tail_num+2] as u32) << 16,
             2 => k1 ^= (tail[tail_num+1] as u32) << 8,
