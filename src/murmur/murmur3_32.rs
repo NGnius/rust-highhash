@@ -28,6 +28,11 @@ impl BuildHasher for Murmur3Hash32 {
     }
 }
 
+// The code below is adapted from C++ code with the following disclaimer
+//-----------------------------------------------------------------------------
+// MurmurHash3 was written by Austin Appleby, and is placed in the public
+// domain. The author hereby disclaims copyright to this source code.
+
 /// MurmurHash3 32-bit implementation of the 32-bit hashing algorithm.
 /// This version allows you to specify a seed.
 pub fn hash32_with_seed<T: AsRef<[u8]>>(v: T, seed: u32) -> u32 {
