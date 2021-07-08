@@ -13,3 +13,6 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[target.'cfg(target_arch = "x86")'.dev-dependencies]
+fasthash = "0.4"
