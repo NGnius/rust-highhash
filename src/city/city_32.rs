@@ -81,18 +81,23 @@ pub fn hash32_with_seed<T: AsRef<[u8]>>(v: T, seed: u32) -> u32 {
     let mut f = g;
 
     let mut a0 = fetch32(data, data.len() - 4)
+        .wrapping_mul(C1)
         .rotate_right(17)
         .wrapping_mul(C2);
     let mut a1 = fetch32(data, data.len() - 8)
+        .wrapping_mul(C1)
         .rotate_right(17)
         .wrapping_mul(C2);
     let mut a2 = fetch32(data, data.len() - 16)
+        .wrapping_mul(C1)
         .rotate_right(17)
         .wrapping_mul(C2);
     let mut a3 = fetch32(data, data.len() - 12)
+        .wrapping_mul(C1)
         .rotate_right(17)
         .wrapping_mul(C2);
     let mut a4 = fetch32(data, data.len() - 20)
+        .wrapping_mul(C1)
         .rotate_right(17)
         .wrapping_mul(C2);
 
@@ -154,11 +159,7 @@ pub fn hash32_with_seed<T: AsRef<[u8]>>(v: T, seed: u32) -> u32 {
 
         f = f.wrapping_add(a0);
 
-        // permute(f, h, g)
-        let temp = g;
-        g = h;
-        h = f;
-        f = temp;
+        permute3(&mut f, &mut h, &mut g);
     }
 
     g = g
@@ -270,10 +271,26 @@ fn hash32_len_13_to_24(data: &[u8], seed: u32) -> u32 {
     ))
 }
 
+#[inline(always)]
+fn permute3(a: &mut u32, b: &mut u32, c: &mut u32) {
+    std::mem::swap(a, b);
+    std::mem::swap(a,c);
+}
+
 #[cfg(test)]
 mod test {
     #[test]
     fn compliance_test() {
         assert_eq!(crate::city::city_32::hash32_with_seed("abc", 0), 795041479);
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn fasthash_interop_test() {
+        let input = "This is a very long test string to make sure this project produces the same results as fasthash";
+        let seed = 0;
+        //println!("Input: '{}' ({}) seed: {}", input, input.len(), seed);
+        assert_eq!(crate::city::city_32::hash32_with_seed(input, seed),
+            fasthash::city::hash32_with_seed(input, seed));
     }
 }

@@ -14,5 +14,5 @@ license = "MIT"
 
 [dependencies]
 
-[target.'cfg(target_arch = "x86")'.dev-dependencies]
+[target.'cfg(any(target_arch = "x86", target_arch = "x86_64"))'.dev-dependencies]
 fasthash = "0.4"
