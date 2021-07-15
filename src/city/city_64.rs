@@ -76,7 +76,7 @@ pub fn hash64_with_seeds<T: AsRef<[u8]>>(v: T, seed0: u64, seed1: u64) -> u64 {
 pub fn hash64<T: AsRef<[u8]>>(v: T) -> u64 {
     let data = v.as_ref();
     if data.len() <= 32 {
-        if data.len() <= 16{
+        if data.len() <= 16 {
             return hash64_len_0_to_16(data);
         }
         return hash64_len_17_to_32(data);
@@ -94,8 +94,10 @@ pub fn hash64<T: AsRef<[u8]>>(v: T) -> u64 {
     x = x.wrapping_mul(K1).wrapping_add(fetch64(data, 0));
     
     // Decrease len to the nearest multiple of 64, and operate on 64-byte chunks.
-    let mut len = (data.len() - 1) & 63;
+    let mut len = (data.len() - 1) & !63;
     let mut s = 0; // data index
+
+    println!("x:{} y:{} z:{} v:({}, {}) w:({}, {})", x, y, z, v.0, v.1, w.0, w.1);
     
     loop {
         x = x.wrapping_add(y).wrapping_add(v.0).wrapping_add(fetch64(data, s + 8)).rotate_right(37).wrapping_mul(K1);
@@ -105,8 +107,10 @@ pub fn hash64<T: AsRef<[u8]>>(v: T) -> u64 {
         z = z.wrapping_add(w.0).rotate_right(33).wrapping_mul(K1);
         v = weak_hash_len_32_with_seeds(data, v.1.wrapping_mul(K1), x.wrapping_add(w.0), s);
         w = weak_hash_len_32_with_seeds(data, z.wrapping_add(w.1), y.wrapping_add(fetch64(data, s + 16)), s + 32);
+        std::mem::swap(&mut z, &mut x);
         s += 64;
         len -= 64;
+        println!("x:{} y:{} z:{} v:({}, {}) w:({}, {}) len:{}", x, y, z, v.0, v.1, w.0, w.1, len);
         if len == 0 { break; }
     }
     hash_len_16(
@@ -144,15 +148,16 @@ fn fetch32(data: &[u8], i: usize) -> u32 {
 
 #[inline(always)]
 fn shift_mix(val: u64) -> u64 {
+    println!("val:{}", val);
     val ^ (val >> 47)
 }
 
 #[inline(always)]
 fn hash_len_16(u: u64, v: u64) -> u64 {
-    //let x = (u as u128) << 64 | (v as u128);
-    let mut a = (u ^ v).wrapping_mul(K_MUL);
+    //let x = (v as u128) << 64 | (u as u128);
+    let mut a = (v ^ u).wrapping_mul(K_MUL);
     a ^= a >> 47;
-    let mut b = (u ^ a).wrapping_mul(K_MUL);
+    let mut b = (v ^ a).wrapping_mul(K_MUL);
     b ^= b >> 47;
     b = b.wrapping_mul(K_MUL);
     b
@@ -166,7 +171,7 @@ fn hash64_len_0_to_16(data: &[u8]) -> u64 {
         return hash_len_16(a, b.wrapping_add(data.len() as u64).rotate_right(data.len() as u32)) ^ b;
     }
     if data.len() >= 4 {
-        let a = fetch64(data, 0) as u64;
+        let a = fetch32(data, 0) as u64;
         return hash_len_16((data.len() as u64).wrapping_add(a << 3), fetch32(data, data.len() - 4) as u64);
     }
     if data.len() > 0 {
@@ -175,6 +180,7 @@ fn hash64_len_0_to_16(data: &[u8]) -> u64 {
         let c = data[data.len() - 1];
         let y = (a as u32).wrapping_add((b as u32) << 8);
         let z = (data.len() as u32).wrapping_add((c as u32) << 2);
+        println!("a:{} b:{} c:{} y:{} z:{}", a, b, c, y, z);
         return shift_mix((y as u64).wrapping_mul(K2) ^ (z as u64).wrapping_mul(K3)).wrapping_mul(K2);
     }
     K2
@@ -219,7 +225,7 @@ fn hash64_len_33_to_64(data: &[u8]) -> u64 {
 mod test {
     #[test]
     fn compliance_test() {
-        assert_eq!(crate::city::city_64::hash64("abc"), 2640714258260161385);
+        assert_eq!(crate::city::city_64::hash64("abc"), 4220206313085259313);
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
