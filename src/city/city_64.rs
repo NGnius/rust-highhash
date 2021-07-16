@@ -96,8 +96,6 @@ pub fn hash64<T: AsRef<[u8]>>(v: T) -> u64 {
     // Decrease len to the nearest multiple of 64, and operate on 64-byte chunks.
     let mut len = (data.len() - 1) & !63;
     let mut s = 0; // data index
-
-    println!("x:{} y:{} z:{} v:({}, {}) w:({}, {})", x, y, z, v.0, v.1, w.0, w.1);
     
     loop {
         x = x.wrapping_add(y).wrapping_add(v.0).wrapping_add(fetch64(data, s + 8)).rotate_right(37).wrapping_mul(K1);
@@ -110,7 +108,6 @@ pub fn hash64<T: AsRef<[u8]>>(v: T) -> u64 {
         std::mem::swap(&mut z, &mut x);
         s += 64;
         len -= 64;
-        println!("x:{} y:{} z:{} v:({}, {}) w:({}, {}) len:{}", x, y, z, v.0, v.1, w.0, w.1, len);
         if len == 0 { break; }
     }
     hash_len_16(
@@ -148,7 +145,6 @@ fn fetch32(data: &[u8], i: usize) -> u32 {
 
 #[inline(always)]
 fn shift_mix(val: u64) -> u64 {
-    println!("val:{}", val);
     val ^ (val >> 47)
 }
 
@@ -180,7 +176,6 @@ fn hash64_len_0_to_16(data: &[u8]) -> u64 {
         let c = data[data.len() - 1];
         let y = (a as u32).wrapping_add((b as u32) << 8);
         let z = (data.len() as u32).wrapping_add((c as u32) << 2);
-        println!("a:{} b:{} c:{} y:{} z:{}", a, b, c, y, z);
         return shift_mix((y as u64).wrapping_mul(K2) ^ (z as u64).wrapping_mul(K3)).wrapping_mul(K2);
     }
     K2

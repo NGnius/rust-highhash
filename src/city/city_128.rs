@@ -101,7 +101,6 @@ pub fn hash128_with_seed<T: AsRef<[u8]>>(v: T, seed: u128) -> u128 {
         w = weak_hash_len_32_with_seeds(data, z.wrapping_add(w.1), y.wrapping_add(fetch64(data, s + 16)), s + 32);
         std::mem::swap(&mut z, &mut x);
         len -= 128;
-        println!("x:{} y:{} z:{} v:({}, {}) w:({}, {}) len:{}", x, y, z, v.0, v.1, w.0, w.1, len);
         if len < 128 { break; }
     }
     x = x.wrapping_add(v.0.wrapping_add(z).rotate_right(49).wrapping_mul(K0));
@@ -178,7 +177,6 @@ fn fetch32(data: &[u8], i: usize) -> u32 {
 
 #[inline(always)]
 fn shift_mix(val: u64) -> u64 {
-    println!("val:{}", val);
     val ^ (val >> 47)
 }
 
@@ -210,7 +208,6 @@ fn hash64_len_0_to_16(data: &[u8]) -> u64 {
         let c = data[data.len() - 1];
         let y = (a as u32).wrapping_add((b as u32) << 8);
         let z = (data.len() as u32).wrapping_add((c as u32) << 2);
-        println!("a:{} b:{} c:{} y:{} z:{}", a, b, c, y, z);
         return shift_mix((y as u64).wrapping_mul(K2) ^ (z as u64).wrapping_mul(K3)).wrapping_mul(K2);
     }
     K2
@@ -258,18 +255,16 @@ fn city_murmur(data: &[u8], seed: u128) -> u128 {
 mod test {
     #[test]
     fn compliance_test() {
-        assert_eq!(crate::city::city_128::hash128("abc"), 76434233956484675513733017140465933893);
+        assert_eq!(crate::city::city_128::hash128("abc"), 26133304454536238711123707289922914558);
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     #[test]
     fn fasthash_interop_test() {
         let input = "This is a very long test string to make sure this project produces the same results as fasthash";
-        let seed1 = 0;
-        let seed2 = 0;
-        //println!("Input: '{}' ({}) seed: {}", input, input.len(), seed);
-        assert_eq!(crate::city::city_128::hash128_with_seeds(input, seed1, seed2),
-            fasthash::city::hash64_with_seeds(input, seed1, seed2));
+        let seed = 0;
+        assert_eq!(crate::city::city_128::hash128_with_seed(input, seed),
+            fasthash::city::hash128_with_seed(input, seed));
     }
 }
 
